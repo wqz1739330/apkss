@@ -12,6 +12,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show repo layout
+        run: |
+          echo "---- 仓库根目录 ----"
+          ls -la
+          echo "---- 查找 settings.gradle ----"
+          find . -maxdepth 4 -name "settings.gradle" -not -path "./.git/*" || true
+
+      - name: Locate project
+        id: locate
+        run: |
+          if [ -f settings.gradle ]; then
+            echo "dir=." >> "$GITHUB_OUTPUT"
+          elif [ -f proxymask/settings.gradle ]; then
+            echo "dir=proxymask" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::仓库里找不到 settings.gradle —— 工程源码没有上传，或放到了更深的目录。请把 proxymask 里的内容传到仓库根目录（不要传 zip，GitHub 不会自动解压）。"
+            exit 1
+          fi
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -27,11 +46,12 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: gradle :app:assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ProxyMask-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.locate.outputs.dir }}/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
