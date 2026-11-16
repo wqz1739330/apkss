@@ -1,0 +1,43 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.proxymask"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.proxymask"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    // 编译期用本地 Xposed API 存根，运行期由 LSPosed 注入真正的实现（APK 里不会打包这些类）。
+    // 这样构建不需要访问 api.xposed.info，离线也能编译。
+    compileOnly project(":xposed-stub")
+
+    // 想改用官方 jar 的话，去掉上面一行，在 settings.gradle 的 repositories 里加上
+    //   maven { url "https://api.xposed.info/" }
+    // 并换成：
+    // compileOnly "de.robv.android.xposed:api:82"
+}
