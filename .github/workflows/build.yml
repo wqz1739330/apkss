@@ -27,7 +27,7 @@ jobs:
           elif [ -f proxymask/settings.gradle ]; then
             echo "dir=proxymask" >> "$GITHUB_OUTPUT"
           else
-            echo "::error::仓库里找不到 settings.gradle —— 工程源码没有上传，或放到了更深的目录。请把 proxymask 里的内容传到仓库根目录（不要传 zip，GitHub 不会自动解压）。"
+            echo "::error::仓库里找不到 settings.gradle —— 工程源码没有上传，或放到了更深的目录。"
             exit 1
           fi
 
@@ -37,9 +37,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
+      # 运行器自带 Android SDK，不要加 android-actions/setup-android
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
